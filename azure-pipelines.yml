@@ -32,4 +32,3 @@ steps:
     appName: 'chakdhe'
     package: '$(System.DefaultWorkingDirectory)/**/*.zip'
     runtimeStack: 'DOTNETCORE|6.0'
-
