@@ -1,30 +1,29 @@
 trigger:
 - main
 - develop
-- feature/*
+- features/*
 
 pool:
-  vmImage: 'ubuntu-latest'
-
+  vmImage: 'windows-latest'
 
 variables:
   buildConfiguration: 'Release'
 
 steps:
 - task: DotNetCoreCLI@2
- inputs:
- command: 'build'
- arguments: '--configuration $(buildConfiguration)'
- displayName: 'dotnet build $(buildConfiguration)'
+  inputs:
+    command: 'build'
+    arguments: '--configuration $(buildConfiguration)'
+  displayName: 'dotnet build $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
   inputs:
-  command: 'publish'
-  arguments: '--configuration $(buildConfiguration)'
-  publishWebProjects: true
-  displayName: 'dotnet build $(buildConfiguration)'
-  
-  - task: AzureWebApp@1
+    command: 'publish'
+    arguments: '--configuration $(buildConfiguration)'
+    publishWebProjects: true
+  displayName: 'dotnet publish $(buildConfiguration)'
+
+- task: AzureWebApp@1
   inputs:
     azureSubscription: 'connect33'
     appType: 'webAppLinux'
