@@ -34,3 +34,12 @@ steps:
     packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
     RuntimeStack: 'DOTNETCORE|6.0'
 
+- task: KubernetesManifest@1
+  inputs:
+    action: 'deploy'
+    connectionType: 'kubernetesServiceConnection'
+    kubernetesServiceConnection: 'batch33'
+    namespace: 'kube-system'
+    manifests: 'deployment.yaml'
+    containers: 'myindia'
+    rolloutStatusTimeout: '1'
