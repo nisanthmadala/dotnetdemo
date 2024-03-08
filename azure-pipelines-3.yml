@@ -150,3 +150,14 @@ stages:
                     percentage: '1'
                     manifests: 'deployment.yaml'
                     containers: 'myindia'
+                    
+                - task: KubernetesManifest@1
+                  inputs:
+                        action: 'deploy'
+                        connectionType: 'kubernetesServiceConnection'
+                        kubernetesServiceConnection: 'kubernetes connection'
+                        namespace: 'kube - system'
+                        strategy: 'canary'
+                        percentage: '10'
+                        manifests: 'deployment.yaml'
+                        rolloutStatusTimeout: 
