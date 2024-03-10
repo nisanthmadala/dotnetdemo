@@ -1,4 +1,5 @@
 trigger:
+
 - main
 - develop
 - features/*
@@ -30,3 +31,15 @@ steps:
     appName: 'chakdhe'
     package: '$(System.DefaultWorkingDirectory)/**/*.zip'
     runtimeStack: 'DOTNETCORE|6.0'
+    
+- task: KubernetesManifest@1
+  inputs:
+    action: 'deploy'
+    connectionType: 'kubernetesServiceConnection'
+    kubernetesServiceConnection: 'batch33'
+    namespace: 'kube-system'
+    strategy: 'canary'
+    percentage: '10'
+    manifests: 'deployment.yaml'
+    rolloutStatusTimeout: '2'
+
