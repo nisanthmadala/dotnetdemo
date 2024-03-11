@@ -13,16 +13,22 @@ variables:
 steps:
 - task: DotNetCoreCLI@2
   inputs:
-  command: 'build'
-  arguments: '--configuration $(buildConfiguration)'
+   command: 'build'
+   arguments: '--configuration $(buildConfiguration)'
   displayName: 'dotnet build $(buildConfiguration)'
 
 
 - task: DotNetCoreCLI@2
   inputs:
-  command: 'publish'
-  arguments: '--configuration $(buildConfiguration)'
-  publishWebProjects: true
+   command: 'publish'
+   arguments: '--configuration $(buildConfiguration)'
+   publishWebProjects: true
+  displayName: 'dotnet build $(buildConfiguration)'
+  
+- task: DotNetCoreCLI@2
+  inputs:
+   command: 'test'
+   arguments: '--configuration $(buildConfiguration)'
   displayName: 'dotnet build $(buildConfiguration)'
   
 
@@ -32,6 +38,6 @@ steps:
     connectionType: 'kubernetesServiceConnection'
     kubernetesServiceConnection: 'batch33'
     namespace: 'kube-system'
-    manifests: 'deployment.yaml'
+    manifests: 'service.yaml'
     containers: 'myindia'
     rolloutStatusTimeout: '1'
