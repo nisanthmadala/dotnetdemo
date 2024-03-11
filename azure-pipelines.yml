@@ -1,43 +1,59 @@
 trigger:
-- main
-- develop
-- feature/*
+  branches:
+    include:
+    - main
+    - develop
+    - features/*
 
 pool:
   vmImage: 'windows-latest'
 
-
 variables:
   buildConfiguration: 'Release'
 
-steps:
-- task: DotNetCoreCLI@2
-  inputs:
-   command: 'build'
-   arguments: '--configuration $(buildConfiguration)'
-  displayName: 'dotnet build $(buildConfiguration)'
+stages:
+- stage: Build
+  displayName: 'Build and Publish'
+  jobs:
+  - job: Build
+    displayName: 'Build and Publish'
+    steps:
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'build'
+        arguments: '--configuration $(buildConfiguration)'
+      displayName: 'dotnet build $(buildConfiguration)'
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'publish'
+        arguments: '--configuration $(buildConfiguration)'
+        publishWebProjects: true
+      displayName: 'dotnet publish $(buildConfiguration)'
 
+- stage: DeployToTesting
+  displayName: 'Deploy to Testing Environment'
+  jobs:
+  - job: Deploy
+    displayName: 'Deploy'
+    steps:
+    - task: Kubernetes@1
+      inputs:
+        connectionType: 'kubectl'
+        command: 'apply'
+        arguments: '-f $(Build.SourcesDirectory)/kubernetes/testing/deployment.yaml'
+        secretType: 'dockerRegistry'
+        secretArguments: '-i $(myindia) -u $(0a8915f5-9ff2-401c-8999-1244db3afae5) -p $(0a8915f5-9ff2-401c-8999-1244db3afae5)'
 
-- task: DotNetCoreCLI@2
-  inputs:
-   command: 'publish'
-   arguments: '--configuration $(buildConfiguration)'
-   publishWebProjects: true
-  displayName: 'dotnet build $(buildConfiguration)'
-  
-- task: DotNetCoreCLI@2
-  inputs:
-   command: 'test'
-   arguments: '--configuration $(buildConfiguration)'
-  displayName: 'dotnet build $(buildConfiguration)'
-  
-
-- task: KubernetesManifest@1
-  inputs:
-    action: 'deploy'
-    connectionType: 'kubernetesServiceConnection'
-    kubernetesServiceConnection: 'batch33'
-    namespace: 'kube-system'
-    manifests: 'service.yaml'
-    containers: 'myindia'
-    rolloutStatusTimeout: '1'
+- stage: DeployToProduction
+  displayName: 'Deploy to Production Environment'
+  jobs:
+  - job: Deploy
+    displayName: 'Deploy'
+    steps:
+    - task: Kubernetes@1
+      inputs:
+        connectionType: 'kubectl'
+        command: 'apply'
+        arguments: '-f $(Build.SourcesDirectory)/kubernetes/production/deployment.yaml'
+        secretType: 'dockerRegistry'
+        secretArguments: '-i $(myindia) -u $(0a8915f5-9ff2-401c-8999-1244db3afae5) -p $(0a8915f5-9ff2-401c-8999-1244db3afae5)'
